@@ -10,43 +10,43 @@ use warp::Filter;
 
 #[derive(Serialize, Deserialize, Clone, EnumIter, EnumString)]
 enum Suit {
-    #[strum(serialize = "S")]
+    #[serde(rename = "SPADES")]
     Spades,
-    #[strum(serialize = "H")]
+    #[serde(rename = "HEARTS")]
     Hearts,
-    #[strum(serialize = "C")]
+    #[serde(rename = "CLUBS")]
     Clubs,
-    #[strum(serialize = "D")]
+    #[serde(rename = "DIAMONDS")]
     Diamonds,
 }
 
 #[derive(Serialize, Deserialize, Clone, EnumIter, EnumString)]
 enum Rank {
-    #[strum(serialize = "2")]
+    #[serde(rename = "2")]
     Two,
-    #[strum(serialize = "3")]
+    #[serde(rename = "3")]
     Three,
-    #[strum(serialize = "4")]
+    #[serde(rename = "4")]
     Four,
-    #[strum(serialize = "5")]
+    #[serde(rename = "5")]
     Five,
-    #[strum(serialize = "6")]
+    #[serde(rename = "6")]
     Six,
-    #[strum(serialize = "7")]
+    #[serde(rename = "7")]
     Seven,
-    #[strum(serialize = "8")]
+    #[serde(rename = "8")]
     Eight,
-    #[strum(serialize = "9")]
+    #[serde(rename = "9")]
     Nine,
-    #[strum(serialize = "10")]
+    #[serde(rename = "10")]
     Ten,
-    #[strum(serialize = "J")]
+    #[serde(rename = "J")]
     Jack,
-    #[strum(serialize = "Q")]
+    #[serde(rename = "Q")]
     Queen,
-    #[strum(serialize = "K")]
+    #[serde(rename = "K")]
     King,
-    #[strum(serialize = "A")]
+    #[serde(rename = "A")]
     Ace,
 }
 
