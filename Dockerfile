@@ -22,6 +22,8 @@ RUN cargo build --release
 
 FROM debian:bullseye-slim
 
+LABEL org.opencontainers.image.description="Blackjack dealer for takehome assignment"
+
 WORKDIR /app
 
 RUN apt-get update \
