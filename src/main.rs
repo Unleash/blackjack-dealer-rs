@@ -3,12 +3,15 @@
 use std::collections::HashSet;
 
 use lazy_static::lazy_static;
+use prometheus::Registry;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 use strum_macros::{EnumIter, EnumString};
+use warp::http::Response;
 use warp::Filter;
+use warp_prometheus::Metrics;
 
 #[derive(Debug, Serialize, Deserialize, Clone, EnumIter, EnumString, Eq, PartialEq, Hash)]
 enum Suit {
@@ -66,6 +69,7 @@ lazy_static! {
         }))
         .collect::<Vec<Card>>();
     static ref DECKSET: HashSet<Card> = HashSet::from_iter(DECK.clone());
+    static ref REGISTRY: Registry = Registry::new();
 }
 
 type Deck = Vec<Card>;
@@ -148,7 +152,15 @@ fn dealer_blackjack() -> Deck {
 #[tokio::main]
 async fn main() {
     env_logger::init();
+    let path_includes = vec![
+        String::from("shuffle"),
+        String::from("fouraces"),
+        String::from("playerblackjack"),
+        String::from("dealerblackjack"),
+    ];
+    let metrics = Metrics::new(&REGISTRY, &path_includes);
     let logger = warp::log("unleash-blackjack");
+
     let shuffle = warp::path!("shuffle").and(warp::get()).map(|| {
         let shuffled_deck = shuffle();
         warp::reply::json(&shuffled_deck)
@@ -166,9 +178,49 @@ async fn main() {
         warp::reply::json(&player_twentyone)
     });
 
+    let metrics_route = warp::path!("metrics").and(warp::get()).map(|| {
+        use prometheus::Encoder;
+        let encoder = prometheus::TextEncoder::new();
+
+        let mut buffer = Vec::new();
+        if let Err(_e) = encoder.encode(&REGISTRY.gather(), &mut buffer) {
+            log::error!("could not encode custom metrics");
+        };
+        let mut res = match String::from_utf8(buffer.clone()) {
+            Ok(v) => v,
+            Err(e) => {
+                log::error!("custom metrics could not be from_utf8'd: {}", e);
+                String::default()
+            }
+        };
+        buffer.clear();
+        let mut buffer = Vec::new();
+        if let Err(_e) = encoder.encode(&prometheus::gather(), &mut buffer) {
+            log::error!("could not encode prometheus metrics");
+        };
+        let res_custom = match String::from_utf8(buffer.clone()) {
+            Ok(v) => v,
+            Err(e) => {
+                log::error!("prometheus metrics could not be from_utf8'd: {}", e);
+                String::default()
+            }
+        };
+        buffer.clear();
+
+        res.push_str(&res_custom);
+        Response::builder().body(res)
+    });
+
     let routes = warp::any()
-        .and(shuffle.or(fouraces).or(playerblackjack).or(dealerblackjack))
-        .with(logger);
+        .and(
+            shuffle
+                .or(fouraces)
+                .or(playerblackjack)
+                .or(dealerblackjack)
+                .or(metrics_route),
+        )
+        .with(logger)
+        .with(warp::log::custom(move |info| metrics.http_metrics(info)));
 
     let addr = ([0, 0, 0, 0], 1337);
     warp::serve(routes).run(addr).await;
