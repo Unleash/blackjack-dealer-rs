@@ -7,8 +7,8 @@ Build with cargo, starts up on port 1337 by default.
 ### Endpoints
 - [x] /shuffle - returns a shuffled deck ()
 - [x] /fouraces - returns a shuffled deck, but with the four aces on top of the deck
-- [ ] /playerblackjack - returns a deck with blackjack for the player
-- [ ] /dealerblackjack - returns a deck with blackjack for the dealer
+- [x] /playerblackjack - returns a deck with blackjack for the player
+- [x] /dealerblackjack - returns a deck with blackjack for the dealer
 - [ ] /dealerbust - returns a deck where dealer will bust
 - [ ] /playerbust - retuns a deck where player will bust
 
