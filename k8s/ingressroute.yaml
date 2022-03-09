@@ -1,0 +1,17 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: blackjack-dealer
+  namespace: blackjack
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: PathPrefix(`/blackjack`)
+      services:
+        - kind: Service
+          name: blackjack-dealer
+          namespace: blackjack
+          port: 1337
+          passHostHeader: true
