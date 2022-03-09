@@ -211,13 +211,18 @@ async fn main() {
         Response::builder().body(res)
     });
 
+    let health = warp::path!("health")
+        .and(warp::get())
+        .map(|| Response::builder().body("OK"));
+
     let routes = warp::any()
         .and(
             shuffle
                 .or(fouraces)
                 .or(playerblackjack)
                 .or(dealerblackjack)
-                .or(metrics_route),
+                .or(metrics_route)
+                .or(health),
         )
         .with(logger)
         .with(warp::log::custom(move |info| metrics.http_metrics(info)));

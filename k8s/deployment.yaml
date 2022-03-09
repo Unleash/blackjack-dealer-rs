@@ -9,4 +9,22 @@ spec:
     matchLabels:
       app.kubernetes.io/name: blackjack-dealer
   template:
+    metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/scrape: "true"
+      labels:
+        app.kubernetes.io/name: blackjack-dealer
+    spec:
+      containers:
+        - name: blackjack-dealer
+          image: "ghcr.io/unleash/blackjack-dealer-rs:sha-9fc6c0d"
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 1337
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /shuffle
 
