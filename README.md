@@ -10,7 +10,7 @@ Build with cargo, starts up on port 1337 by default.
 - [x] /playerblackjack - returns a deck with blackjack for the player
 - [x] /dealerblackjack - returns a deck with blackjack for the dealer
 - [ ] /dealerbust - returns a deck where dealer will bust
-- [ ] /playerbust - retuns a deck where player will bust
+- [ ] /playerbust - returns a deck where player will bust
 
 
 ## Benchmarking
