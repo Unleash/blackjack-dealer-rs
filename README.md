@@ -13,6 +13,11 @@ Build with cargo, starts up on port 1337 by default.
 - [x] /dealerbust - returns a deck where dealer will bust
 - [x] /playerbust - returns a deck where player will bust
 
+### Backing endpoints
+
+- /metrics - Prometheus metrics for requests and process
+- /health - returns 200 OK
+
 ## Benchmarking
 
 We're using [k6](https://k6.io) for benchmarking. This repo includes a k6benchmark.js file which can run on the server running this application or modified to access the URL where the application is deployed.
