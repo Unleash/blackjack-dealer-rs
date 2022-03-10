@@ -81,24 +81,30 @@ fn shuffle() -> Deck {
     deck_copy
 }
 
-fn four_aces() -> Deck {
+fn complete_deck(front_of_deck: Vec<Card>) -> Deck {
     let mut rest_of_deck = DECKSET.clone();
-    let mut four_aces: Vec<Card> = Suit::iter()
+    for c in &front_of_deck {
+        rest_of_deck.remove(c);
+    }
+    let mut cards = front_of_deck.clone();
+    cards.extend(rest_of_deck.into_iter());
+    cards
+}
+
+fn four_aces() -> Deck {
+    let four_aces: Vec<Card> = Suit::iter()
         .map(|s| {
             let c = Card {
                 suit: s,
                 value: Rank::Ace,
             };
-            rest_of_deck.remove(&c);
             c.clone()
         })
         .collect::<Vec<Card>>();
-    four_aces.extend(rest_of_deck.into_iter());
-    four_aces
+    complete_deck(four_aces)
 }
 
 fn player_blackjack() -> Deck {
-    let mut rest_of_deck = DECKSET.clone();
     let player_blackjack = [
         Card {
             suit: Suit::Spades,
@@ -113,16 +119,10 @@ fn player_blackjack() -> Deck {
             value: Rank::Jack,
         },
     ];
-    for c in &player_blackjack {
-        rest_of_deck.remove(c);
-    }
-    let mut cards = player_blackjack.to_vec();
-    cards.extend(rest_of_deck.into_iter());
-    cards
+    complete_deck(player_blackjack.to_vec())
 }
 
 fn dealer_blackjack() -> Deck {
-    let mut rest_of_deck = DECKSET.clone();
     let dealer_blackjack = [
         Card {
             suit: Suit::Spades,
@@ -141,12 +141,76 @@ fn dealer_blackjack() -> Deck {
             value: Rank::Jack,
         },
     ];
-    for c in &dealer_blackjack {
-        rest_of_deck.remove(c);
-    }
-    let mut cards = dealer_blackjack.to_vec();
-    cards.extend(rest_of_deck.into_iter());
-    cards
+    complete_deck(dealer_blackjack.to_vec())
+}
+
+fn player_bust() -> Deck {
+    let mut rest_of_deck = DECKSET.clone();
+    let player_bust = [
+        Card {
+            suit: Suit::Spades,
+            value: Rank::Five,
+        },
+        Card {
+            suit: Suit::Hearts,
+            value: Rank::Two,
+        },
+        Card {
+            suit: Suit::Diamonds,
+            value: Rank::Five,
+        },
+        Card {
+            suit: Suit::Clubs,
+            value: Rank::Nine,
+        },
+        Card {
+            suit: Suit::Spades,
+            value: Rank::Six,
+        },
+        Card {
+            suit: Suit::Diamonds,
+            value: Rank::King,
+        },
+    ];
+    complete_deck(player_bust.to_vec())
+}
+
+fn dealer_bust() -> Deck {
+    let dealer_bust = [
+        Card {
+            suit: Suit::Spades,
+            value: Rank::Five,
+        },
+        Card {
+            suit: Suit::Hearts,
+            value: Rank::Two,
+        },
+        Card {
+            suit: Suit::Diamonds,
+            value: Rank::Five,
+        },
+        Card {
+            suit: Suit::Clubs,
+            value: Rank::Nine,
+        },
+        Card {
+            suit: Suit::Spades,
+            value: Rank::Six,
+        },
+        Card {
+            suit: Suit::Diamonds,
+            value: Rank::Four,
+        },
+        Card {
+            suit: Suit::Spades,
+            value: Rank::Eight,
+        },
+        Card {
+            suit: Suit::Spades,
+            value: Rank::King,
+        },
+    ];
+    complete_deck(dealer_bust.to_vec())
 }
 
 #[tokio::main]
@@ -176,6 +240,16 @@ async fn main() {
     let dealerblackjack = warp::path!("dealerblackjack").and(warp::get()).map(|| {
         let player_twentyone = dealer_blackjack();
         warp::reply::json(&player_twentyone)
+    });
+
+    let playerbust = warp::path!("playerbust").and(warp::get()).map(|| {
+        let playerbust = player_bust();
+        warp::reply::json(&playerbust)
+    });
+
+    let dealerbust = warp::path!("dealerbust").and(warp::get()).map(|| {
+        let dealerbust = dealer_bust();
+        warp::reply::json(&dealerbust)
     });
 
     let metrics_route = warp::path!("metrics").and(warp::get()).map(|| {
@@ -221,6 +295,8 @@ async fn main() {
                 .or(fouraces)
                 .or(playerblackjack)
                 .or(dealerblackjack)
+                .or(playerbust)
+                .or(dealerbust)
                 .or(metrics_route)
                 .or(health),
         )
@@ -303,10 +379,10 @@ mod blackjack {
     #[test]
     fn dealer_blackjack_deals_a_blackjack_to_dealer() {
         let b = dealer_blackjack();
-        let first_player_card = b.get(1).unwrap();
-        let second_player_card = b.get(3).unwrap();
+        let first_dealer_card = b.get(1).unwrap();
+        let second_dealer_card = b.get(3).unwrap();
 
-        assert_eq!(first_player_card, &Card::from_str("SA").unwrap());
-        assert_eq!(second_player_card, &Card::from_str("SJ").unwrap())
+        assert_eq!(first_dealer_card, &Card::from_str("SA").unwrap());
+        assert_eq!(second_dealer_card, &Card::from_str("SJ").unwrap())
     }
 }
