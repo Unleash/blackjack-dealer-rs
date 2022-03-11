@@ -27,7 +27,9 @@ pub fn shuffle() -> Deck {
 }
 
 pub fn complete_deck(front_of_deck: Vec<Card>) -> Deck {
-    let mut leader_iterator = front_of_deck.iter();
+    let mut leaders = front_of_deck.clone();
+    leaders.sort();
+    let mut leader_iterator = leaders.iter();
     let mut current_leader_index = leader_iterator.next().map(|card| card.standard_index());
 
     let deck_without_leaders = DECK
