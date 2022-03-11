@@ -22,6 +22,12 @@ Build with cargo, starts up on port 1337 by default.
 
 We're using [k6](https://k6.io) for benchmarking. This repo includes a k6benchmark.js file which can run on the server running this application or modified to access the URL where the application is deployed.
 
+We've also included [Criterion](https://github.com/bheisler/criterion.rs) benchmarks, these can be run with
+
+```sh
+$ cargo bench
+```
+
 ### Basic usage of k6
 
 - For benchmarking the shuffle endpoint
