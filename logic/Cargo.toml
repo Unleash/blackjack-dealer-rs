@@ -1,16 +1,10 @@
 [package]
-name = "blackjack-dealer-rs"
+name = "logic"
 version = "0.1.0"
-edition = "2021"
+edition = "2018"
 
-[workspace]
-members = [
-    "logic",
-    "server",
-]
-exclude = [".cargo"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "logic"
 
 [dependencies]
 env_logger = "0.9.0"
@@ -26,10 +20,3 @@ strum_macros = "0.24.0"
 tokio = { version = "1", features = ["full"] }
 warp = "0.3"
 warp-prometheus = "0.5.0"
-
-[dev-dependencies]
-criterion = "0.3"
-
-[[bench]]
-name = "card_benches"
-harness = false

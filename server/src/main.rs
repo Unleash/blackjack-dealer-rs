@@ -1,12 +1,9 @@
 #![warn(clippy::all)]
 
-mod card;
-mod deck_generator;
-
-use deck_generator::{
+use lazy_static::lazy_static;
+use logic::deck_generator::{
     dealer_blackjack, dealer_bust, four_aces, player_blackjack, player_bust, shuffle,
 };
-use lazy_static::lazy_static;
 use prometheus::Registry;
 use warp::http::Response;
 use warp::Filter;

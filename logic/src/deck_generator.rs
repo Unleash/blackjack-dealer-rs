@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::iter::FromIterator;
 
 use crate::card::{Card, Rank, Suit};
 use lazy_static::lazy_static;
