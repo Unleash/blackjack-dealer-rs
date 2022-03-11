@@ -94,11 +94,10 @@ fn complete_deck(front_of_deck: Vec<Card>) -> Deck {
 fn four_aces() -> Deck {
     let four_aces: Vec<Card> = Suit::iter()
         .map(|s| {
-            let c = Card {
+            Card {
                 suit: s,
                 value: Rank::Ace,
-            };
-            c.clone()
+            }
         })
         .collect::<Vec<Card>>();
     complete_deck(four_aces)
@@ -145,7 +144,6 @@ fn dealer_blackjack() -> Deck {
 }
 
 fn player_bust() -> Deck {
-    let mut rest_of_deck = DECKSET.clone();
     let player_bust = [
         Card {
             suit: Suit::Spades,
