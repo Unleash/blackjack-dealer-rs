@@ -14,9 +14,9 @@ WORKDIR /app
 
 COPY --from=planner /app/recipe.json recipe.json
 
-RUN cargo chef cook --release --recipe-path recipe.json
-
 COPY . .
+
+RUN cargo chef cook --release --recipe-path recipe.json
 
 RUN cargo build --release
 
@@ -38,10 +38,10 @@ ENV TZ=Etc/UTC \
 RUN groupadd $APP_USER \
     && useradd -g $APP_USER $APP_USER
 
-COPY --from=builder /app/target/release/blackjack-dealer-rs /app
+COPY --from=builder /app/target/release/server /app
 
-RUN chown -R $APP_USER:$APP_USER /app/blackjack-dealer-rs
+RUN chown -R $APP_USER:$APP_USER /app/server
 
 USER $APP_USER
 
-CMD ["./blackjack-dealer-rs"]
+CMD ["./server"]
