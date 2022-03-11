@@ -12,54 +12,8 @@ use strum_macros::{EnumIter, EnumString};
 use warp::http::Response;
 use warp::Filter;
 use warp_prometheus::Metrics;
-
-#[derive(Debug, Serialize, Deserialize, Clone, EnumIter, EnumString, Eq, PartialEq, Hash)]
-enum Suit {
-    #[serde(rename = "SPADES")]
-    Spades,
-    #[serde(rename = "HEARTS")]
-    Hearts,
-    #[serde(rename = "CLUBS")]
-    Clubs,
-    #[serde(rename = "DIAMONDS")]
-    Diamonds,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, EnumIter, EnumString, Eq, PartialEq, Hash)]
-enum Rank {
-    #[serde(rename = "2")]
-    Two,
-    #[serde(rename = "3")]
-    Three,
-    #[serde(rename = "4")]
-    Four,
-    #[serde(rename = "5")]
-    Five,
-    #[serde(rename = "6")]
-    Six,
-    #[serde(rename = "7")]
-    Seven,
-    #[serde(rename = "8")]
-    Eight,
-    #[serde(rename = "9")]
-    Nine,
-    #[serde(rename = "10")]
-    Ten,
-    #[serde(rename = "J")]
-    Jack,
-    #[serde(rename = "Q")]
-    Queen,
-    #[serde(rename = "K")]
-    King,
-    #[serde(rename = "A")]
-    Ace,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Hash)]
-struct Card {
-    suit: Suit,
-    value: Rank,
-}
+mod card;
+use card::{Card, Rank, Suit};
 
 lazy_static! {
     static ref DECK: Vec<Card> = Suit::iter()
@@ -93,11 +47,9 @@ fn complete_deck(front_of_deck: Vec<Card>) -> Deck {
 
 fn four_aces() -> Deck {
     let four_aces: Vec<Card> = Suit::iter()
-        .map(|s| {
-            Card {
-                suit: s,
-                value: Rank::Ace,
-            }
+        .map(|s| Card {
+            suit: s,
+            value: Rank::Ace,
         })
         .collect::<Vec<Card>>();
     complete_deck(four_aces)
@@ -215,10 +167,10 @@ fn dealer_bust() -> Deck {
 async fn main() {
     env_logger::init();
     let path_includes = vec![
-        String::from("shuffle"),
-        String::from("fouraces"),
-        String::from("playerblackjack"),
-        String::from("dealerblackjack"),
+        "shuffle".into(),
+        "fouraces".into(),
+        "playerblackjack".into(),
+        "dealerblackjack".into(),
     ];
     let metrics = Metrics::new(&REGISTRY, &path_includes);
     let logger = warp::log("unleash-blackjack");
