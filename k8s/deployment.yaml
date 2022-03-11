@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: blackjack-dealer
-          image: "ghcr.io/unleash/blackjack-dealer-rs:sha-9fc6c0d"
+          image: "ghcr.io/unleash/blackjack-dealer-rs:sha-9764a1a"
           imagePullPolicy: Always
           ports:
             - name: http
@@ -35,10 +35,16 @@ spec:
             httpGet:
               path: /health
               port: http
+            initialDelaySeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
           readinessProbe:
             httpGet:
               port: http
               path: /health
+            initialDelaySeconds: 20
+            failureThreshold: 3
+            successThreshold: 1
           resources:
             limits:
               cpu: 100m
