@@ -8,7 +8,7 @@ use rand::thread_rng;
 use strum::IntoEnumIterator;
 
 lazy_static! {
-    static ref DECK: Vec<Card> = Suit::iter()
+    pub static ref DECK: Vec<Card> = Suit::iter()
         .flat_map(|s| Rank::iter().map(move |r: Rank| Card {
             value: r,
             suit: s.clone()
@@ -27,13 +27,25 @@ pub fn shuffle() -> Deck {
 }
 
 pub fn complete_deck(front_of_deck: Vec<Card>) -> Deck {
-    let mut rest_of_deck = DECKSET.clone();
-    for c in &front_of_deck {
-        rest_of_deck.remove(c);
-    }
-    let mut cards = front_of_deck.clone();
-    cards.extend(rest_of_deck.into_iter());
-    cards
+    let mut leader_iterator = front_of_deck.iter();
+    let mut current_leader_index = leader_iterator.next().map(|card| card.standard_index());
+
+    let deck_without_leaders = DECK
+        .iter()
+        .enumerate()
+        .filter(|(index, _)| {
+            if current_leader_index == Some(*index) {
+                current_leader_index = leader_iterator.next().map(|card| card.standard_index());
+                false
+            } else {
+                true
+            }
+        })
+        .map(|(_, card)| card.clone());
+
+    let mut deck = front_of_deck.clone();
+    deck.extend(deck_without_leaders);
+    deck
 }
 
 pub fn four_aces() -> Deck {
@@ -223,6 +235,7 @@ mod blackjack {
         assert_eq!(first_player_card, &Card::from_str("SA").unwrap());
         assert_eq!(second_player_card, &Card::from_str("SJ").unwrap())
     }
+
     #[test]
     fn dealer_blackjack_deals_a_blackjack_to_dealer() {
         let b = dealer_blackjack();
@@ -231,5 +244,20 @@ mod blackjack {
 
         assert_eq!(first_dealer_card, &Card::from_str("SA").unwrap());
         assert_eq!(second_dealer_card, &Card::from_str("SJ").unwrap())
+    }
+
+    #[test]
+    fn complete_deck_returns_complete_and_correct_deck() {
+        let four_aces = [
+            Card::from_str("SA").unwrap(),
+            Card::from_str("HA").unwrap(),
+            Card::from_str("CA").unwrap(),
+            Card::from_str("DA").unwrap(),
+        ];
+
+        let new_deck = complete_deck(four_aces.to_vec());
+        let unique_cards: HashSet<Card> = HashSet::from_iter(new_deck.clone());
+        assert_eq!(new_deck.len(), 52);
+        assert_eq!(unique_cards.len(), 52);
     }
 }

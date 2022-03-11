@@ -48,3 +48,33 @@ pub struct Card {
     pub suit: Suit,
     pub value: Rank,
 }
+
+impl Card {
+    pub fn standard_index(&self) -> usize {
+        ((self.suit.clone() as u8) * 13 + self.value.clone() as u8) as usize
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::deck_generator::DECK;
+
+    use super::*;
+
+    #[test]
+    fn card_indexes_on_standard_deck() {
+        let card = Card {
+            suit: Suit::Clubs,
+            value: Rank::Five,
+        };
+
+        let dummy = Card {
+            suit: Suit::Clubs,
+            value: Rank::Six,
+        };
+
+        let drawn_card = DECK[card.standard_index()].clone();
+        assert_eq!(drawn_card, card);
+        assert_ne!(drawn_card, dummy);
+    }
+}
