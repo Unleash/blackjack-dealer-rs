@@ -33,7 +33,7 @@ $ cargo bench
 - For benchmarking the shuffle endpoint
 
 ```sh
-$ k6 run --vu 50 --duration 30s k6benchmark.js
+$ k6 run --vus 50 --duration 30s k6benchmark.js
 ```
 
 ### k6 results (on a Ryzen 9 5900X (12C/24T)) built with --release for /shuffle
