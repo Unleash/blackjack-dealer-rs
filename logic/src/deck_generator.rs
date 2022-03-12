@@ -26,6 +26,8 @@ pub fn shuffle() -> Deck {
     deck_copy
 }
 
+//Clippy is wrong here, rustc requires the clone
+#[allow(clippy::redundant_clone)]
 pub fn complete_deck(front_of_deck: Vec<Card>) -> Deck {
     let mut leaders = front_of_deck.clone();
     leaders.sort();
