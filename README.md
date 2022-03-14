@@ -12,6 +12,8 @@ Build with cargo, starts up on port 1337 by default.
 - [x] /dealerblackjack - returns a deck with blackjack for the dealer
 - [x] /dealerbust - returns a deck where dealer will bust
 - [x] /playerbust - returns a deck where player will bust
+- [x] /tie20 - Both players draw 20 - This should cause dealer to lose, since they always draw until they have higher than player
+- [x] /tie21 - Both players draw 21 - - " -
 
 ### Backing endpoints
 
