@@ -5,6 +5,7 @@ use logic::deck_generator::{
     dealer_blackjack, dealer_bust, four_aces, player_blackjack, player_bust, shuffle,
 };
 use prometheus::Registry;
+use std::env;
 use warp::http::Response;
 use warp::Filter;
 use warp_prometheus::Metrics;
@@ -102,7 +103,9 @@ async fn main() {
         )
         .with(logger)
         .with(warp::log::custom(move |info| metrics.http_metrics(info)));
-
-    let addr = ([0, 0, 0, 0], 1337);
-    warp::serve(routes).run(addr).await;
+    let port = env::var("PORT")
+        .unwrap_or_else(|_| "1337".to_string())
+        .parse()
+        .expect("Must be a number");
+    warp::serve(routes).run(([0, 0, 0, 0], port)).await;
 }
