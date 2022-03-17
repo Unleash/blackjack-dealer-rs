@@ -69,10 +69,6 @@ pub fn player_blackjack() -> Deck {
             value: Rank::Ace,
         },
         Card {
-            suit: Suit::Hearts,
-            value: Rank::Eight,
-        },
-        Card {
             suit: Suit::Spades,
             value: Rank::Jack,
         },
@@ -88,11 +84,11 @@ pub fn dealer_blackjack() -> Deck {
         },
         Card {
             suit: Suit::Spades,
-            value: Rank::Ace,
+            value: Rank::Nine,
         },
         Card {
             suit: Suit::Spades,
-            value: Rank::Nine,
+            value: Rank::Ace,
         },
         Card {
             suit: Suit::Spades,
