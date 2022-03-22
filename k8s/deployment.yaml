@@ -25,8 +25,11 @@ spec:
     spec:
       containers:
         - name: blackjack-dealer
-          image: "ghcr.io/unleash/blackjack-dealer-rs:edge"
+          image: "ghcr.io/unleash/blackjack-dealer-rs:sha-2120be9"
           imagePullPolicy: Always
+          env:
+            - name: PORT
+              value: "1337"
           ports:
             - name: http
               containerPort: 1337
