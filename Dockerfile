@@ -1,24 +1,11 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1.59 AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.59 AS builder
 
 WORKDIR app
 
-FROM chef as planner
-
 COPY . .
-
-RUN cargo chef prepare --recipe-path recipe.json
-
-FROM chef AS builder
-
-WORKDIR /app
-
-COPY --from=planner /app/recipe.json recipe.json
-
-COPY . .
-
-RUN cargo chef cook --release --recipe-path recipe.json
 
 RUN cargo build --release
+
 
 FROM debian:bullseye-slim
 
