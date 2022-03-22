@@ -36,6 +36,9 @@ async fn main() {
         "fouraces".into(),
         "playerblackjack".into(),
         "dealerblackjack".into(),
+        "custom".into(),
+        "playerbust".into(),
+        "dealerbust".into(),
     ];
     let metrics = Metrics::new(&REGISTRY, &path_includes);
     let logger = warp::log("unleash-blackjack");
