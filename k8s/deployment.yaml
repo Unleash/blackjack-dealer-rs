@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: blackjack-dealer
-          image: "ghcr.io/unleash/blackjack-dealer-rs:sha-2120be9"
+          image: "ghcr.io/unleash/blackjack-dealer-rs:sha-b14d98d"
           imagePullPolicy: Always
           env:
             - name: PORT
