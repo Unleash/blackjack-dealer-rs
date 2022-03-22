@@ -1,17 +1,31 @@
 #![warn(clippy::all)]
 
 use lazy_static::lazy_static;
+use logic::card::Card;
 use logic::deck_generator::{
-    dealer_blackjack, dealer_bust, four_aces, player_blackjack, player_bust, shuffle,
+    complete_deck, dealer_blackjack, dealer_bust, four_aces, player_blackjack, player_bust,
+    shuffle, BlackjackQuery,
 };
+use logic::error::ErrorMessage;
 use prometheus::Registry;
+use std::convert::Infallible;
 use std::env;
-use warp::http::Response;
-use warp::Filter;
+use std::str::FromStr;
+use warp::http::{Response, StatusCode};
+use warp::{Filter, Rejection, Reply};
 use warp_prometheus::Metrics;
 
 lazy_static! {
     static ref REGISTRY: Registry = Registry::new();
+}
+
+async fn handle_reject(_r: Rejection) -> Result<impl Reply, Infallible> {
+    let json = warp::reply::json(&ErrorMessage {
+        code: 400,
+        message: "Invalid deck format".into(),
+    });
+
+    Ok(warp::reply::with_status(json, StatusCode::BAD_REQUEST))
 }
 
 #[tokio::main]
@@ -52,6 +66,20 @@ async fn main() {
         let dealerbust = dealer_bust();
         warp::reply::json(&dealerbust)
     });
+
+    let customdeck = warp::path!("custom")
+        .and(warp::get())
+        .and(warp::query::<BlackjackQuery>())
+        .map(|q: BlackjackQuery| {
+            let cards = q
+                .cards
+                .split(',')
+                .map(Card::from_str)
+                .collect::<Result<Vec<Card>, ()>>()
+                .unwrap_or_default();
+            let custom = complete_deck(cards);
+            warp::reply::json(&custom)
+        });
 
     let metrics_route = warp::path!("metrics").and(warp::get()).map(|| {
         use prometheus::Encoder;
@@ -98,11 +126,14 @@ async fn main() {
                 .or(dealerblackjack)
                 .or(playerbust)
                 .or(dealerbust)
+                .or(customdeck)
                 .or(metrics_route)
                 .or(health),
         )
+        .recover(handle_reject)
         .with(logger)
         .with(warp::log::custom(move |info| metrics.http_metrics(info)));
+
     let port = env::var("PORT")
         .unwrap_or_else(|_| "1337".to_string())
         .parse()

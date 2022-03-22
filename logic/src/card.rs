@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, EnumString};
@@ -66,6 +67,48 @@ pub struct Card {
 impl Card {
     pub fn standard_index(&self) -> usize {
         ((self.suit.clone() as u8) * 13 + self.value.clone() as u8) as usize
+    }
+}
+
+impl FromStr for Card {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut chars = s.chars();
+        if let Some(suit) = {
+            match chars.next() {
+                Some('S') => Some(Suit::Spades),
+                Some('D') => Some(Suit::Diamonds),
+                Some('H') => Some(Suit::Hearts),
+                Some('C') => Some(Suit::Clubs),
+                _ => None,
+            }
+        } {
+            if let Some(rank) = {
+                match chars.next() {
+                    Some('2') => Some(Rank::Two),
+                    Some('3') => Some(Rank::Three),
+                    Some('4') => Some(Rank::Four),
+                    Some('5') => Some(Rank::Five),
+                    Some('6') => Some(Rank::Six),
+                    Some('7') => Some(Rank::Seven),
+                    Some('8') => Some(Rank::Eight),
+                    Some('9') => Some(Rank::Nine),
+                    Some('1') => Some(Rank::Ten),
+                    Some('J') => Some(Rank::Jack),
+                    Some('Q') => Some(Rank::Queen),
+                    Some('K') => Some(Rank::King),
+                    Some('A') => Some(Rank::Ace),
+                    _ => None,
+                }
+            } {
+                Result::Ok(Card { suit, value: rank })
+            } else {
+                Result::Err(())
+            }
+        } else {
+            Result::Err(())
+        }
     }
 }
 
