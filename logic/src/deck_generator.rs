@@ -176,16 +176,16 @@ pub struct BlackjackQuery {
 #[cfg(test)]
 mod blackjack {
     use super::*;
-    use std::str::FromStr;
+    use crate::card::FromAnswer;
 
     #[test]
     fn four_aces_returns_four_aces_as_first_four_cards() {
         let f = four_aces();
         let four_aces = [
-            Card::from_str("SA").unwrap(),
-            Card::from_str("HA").unwrap(),
-            Card::from_str("CA").unwrap(),
-            Card::from_str("DA").unwrap(),
+            Card::from_answer("SA").unwrap(),
+            Card::from_answer("HA").unwrap(),
+            Card::from_answer("CA").unwrap(),
+            Card::from_answer("DA").unwrap(),
         ];
         assert_eq!(four_aces, f.chunks(4).next().unwrap())
     }
@@ -196,8 +196,8 @@ mod blackjack {
         let first_player_card = b.get(0).unwrap();
         let second_player_card = b.get(1).unwrap();
 
-        assert_eq!(first_player_card, &Card::from_str("SA").unwrap());
-        assert_eq!(second_player_card, &Card::from_str("SJ").unwrap())
+        assert_eq!(first_player_card, &Card::from_answer("SA").unwrap());
+        assert_eq!(second_player_card, &Card::from_answer("SJ").unwrap())
     }
 
     #[test]
@@ -206,17 +206,17 @@ mod blackjack {
         let first_dealer_card = b.get(2).unwrap();
         let second_dealer_card = b.get(3).unwrap();
 
-        assert_eq!(first_dealer_card, &Card::from_str("SA").unwrap());
-        assert_eq!(second_dealer_card, &Card::from_str("SJ").unwrap())
+        assert_eq!(first_dealer_card, &Card::from_answer("SA").unwrap());
+        assert_eq!(second_dealer_card, &Card::from_answer("SJ").unwrap())
     }
 
     #[test]
     fn complete_deck_returns_complete_and_correct_deck() {
         let four_aces = [
-            Card::from_str("SA").unwrap(),
-            Card::from_str("HA").unwrap(),
-            Card::from_str("CA").unwrap(),
-            Card::from_str("DA").unwrap(),
+            Card::from_answer("SA").unwrap(),
+            Card::from_answer("HA").unwrap(),
+            Card::from_answer("CA").unwrap(),
+            Card::from_answer("DA").unwrap(),
         ];
 
         let new_deck = complete_deck(four_aces.to_vec());

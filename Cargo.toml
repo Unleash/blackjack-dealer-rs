@@ -2,6 +2,7 @@
 members = [
     "logic",
     "server",
+    "client",
 ]
 exclude = [".cargo"]
 

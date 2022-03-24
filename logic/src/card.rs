@@ -69,11 +69,15 @@ impl Card {
         ((self.suit.clone() as u8) * 13 + self.value.clone() as u8) as usize
     }
 }
+pub trait FromAnswer: Sized {
+    type Err;
+    fn from_answer(s: &str) -> Result<Self, Self::Err>;
+}
 
-impl FromStr for Card {
+impl FromAnswer for Card {
     type Err = ();
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
+    fn from_answer(s: &str) -> Result<Self, Self::Err> {
         let mut chars = s.chars();
         if let Some(suit) = {
             match chars.next() {
