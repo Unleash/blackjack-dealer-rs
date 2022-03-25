@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use strum_macros::{EnumIter, EnumString};

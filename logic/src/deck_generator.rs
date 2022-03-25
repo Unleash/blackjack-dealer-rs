@@ -131,7 +131,7 @@ pub fn player_bust() -> Deck {
 }
 
 pub fn dealer_bust() -> Deck {
-    let dealer_bust = [
+    let dealer_bust = vec![
         Card {
             suit: Suit::Spades,
             value: Rank::Five,
@@ -165,7 +165,63 @@ pub fn dealer_bust() -> Deck {
             value: Rank::King,
         },
     ];
-    complete_deck(dealer_bust.to_vec())
+    complete_deck(dealer_bust)
+}
+
+pub fn both_blackjack() -> Deck {
+    let both_blackjack = vec![
+        Card {
+            suit: Suit::Spades,
+            value: Rank::King,
+        },
+        Card {
+            suit: Suit::Hearts,
+            value: Rank::Ace,
+        },
+        Card {
+            suit: Suit::Clubs,
+            value: Rank::King,
+        },
+        Card {
+            suit: Suit::Clubs,
+            value: Rank::Ace,
+        },
+    ];
+    complete_deck(both_blackjack)
+}
+
+pub fn tie21() -> Deck {
+    let tie21 = vec![
+        Card {
+            suit: Suit::Spades,
+            value: Rank::King,
+        },
+        Card {
+            suit: Suit::Hearts,
+            value: Rank::Five,
+        },
+        Card {
+            suit: Suit::Clubs,
+            value: Rank::King,
+        },
+        Card {
+            suit: Suit::Clubs,
+            value: Rank::Nine,
+        },
+        Card {
+            suit: Suit::Spades,
+            value: Rank::Six,
+        },
+        Card {
+            suit: Suit::Diamonds,
+            value: Rank::Two,
+        },
+        Card {
+            suit: Suit::Spades,
+            value: Rank::Nine,
+        },
+    ];
+    complete_deck(tie21)
 }
 
 #[derive(Serialize, Deserialize)]

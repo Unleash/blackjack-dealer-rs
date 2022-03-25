@@ -48,13 +48,13 @@ impl ToInt for Rank {
     }
 }
 
-trait Blackjack<S: Scorable = Self> {
-    fn has_blackjack(&self) -> bool;
-}
-trait Scorable {
+trait Scoreable {
     fn score(&self) -> u8;
 }
-trait Bust<S: Scorable = Self> {
+trait Blackjack<S: Scoreable = Self> {
+    fn has_blackjack(&self) -> bool;
+}
+trait Bust<S: Scoreable = Self> {
     fn is_bust(&self) -> bool;
 }
 
@@ -80,7 +80,7 @@ impl ToPlayerResult for Player {
         }
     }
 }
-impl Scorable for Player {
+impl Scoreable for Player {
     fn score(&self) -> u8 {
         self.hand.iter().map(|x| x.to_int()).sum()
     }
@@ -134,22 +134,22 @@ fn play_game(deck: Deck, player_name: String) -> GameResult {
         hand: dealer_hand,
         strategy: Box::new(|own_score, player_score| own_score <= player_score),
     };
-    if dealer.has_blackjack() {
+    if dealer.has_blackjack() || player.is_bust() {
         return dealer_wins(original, player, dealer);
-    } else if player.has_blackjack() {
+    } else if player.has_blackjack() || dealer.is_bust() {
         return player_wins(original, player, dealer);
     }
-    while (player.hit_me(dealer.score())) {
+    while player.hit_me(dealer.score()) {
         player.hand.push(playing_deck.remove(0));
     }
-    if (player.is_bust()) {
+    if player.is_bust() {
         return dealer_wins(original, player, dealer);
     }
     let p_score = player.score();
-    while (dealer.hit_me(p_score)) {
+    while dealer.hit_me(p_score) {
         dealer.hand.push(playing_deck.remove(0));
     }
-    if (dealer.is_bust()) {
+    if dealer.is_bust() {
         return player_wins(original, player, dealer);
     }
     dealer_wins(original, player, dealer)

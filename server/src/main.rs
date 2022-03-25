@@ -1,16 +1,15 @@
 #![warn(clippy::all)]
 
 use lazy_static::lazy_static;
-use logic::card::Card;
+use logic::card::{Card, FromAnswer};
 use logic::deck_generator::{
-    complete_deck, dealer_blackjack, dealer_bust, four_aces, player_blackjack, player_bust,
-    shuffle, BlackjackQuery,
+    both_blackjack, complete_deck, dealer_blackjack, dealer_bust, four_aces, player_blackjack,
+    player_bust, shuffle, tie21, BlackjackQuery,
 };
 use logic::error::ErrorMessage;
 use prometheus::Registry;
 use std::convert::Infallible;
 use std::env;
-use std::str::FromStr;
 use warp::http::{Response, StatusCode};
 use warp::{Filter, Rejection, Reply};
 use warp_prometheus::Metrics;
@@ -70,6 +69,16 @@ async fn main() {
         warp::reply::json(&dealerbust)
     });
 
+    let both_blackjack = warp::path!("bothblackjack").and(warp::get()).map(|| {
+        let both_blackjack = both_blackjack();
+        warp::reply::json(&both_blackjack)
+    });
+
+    let tie21 = warp::path!("tie21").and(warp::get()).map(|| {
+        let tie21 = tie21();
+        warp::reply::json(&tie21)
+    });
+
     let customdeck = warp::path!("custom")
         .and(warp::get())
         .and(warp::query::<BlackjackQuery>())
@@ -77,7 +86,7 @@ async fn main() {
             let cards = q
                 .cards
                 .split(',')
-                .map(Card::from_str)
+                .map(Card::from_answer)
                 .collect::<Result<Vec<Card>, ()>>()
                 .unwrap_or_default();
             let custom = complete_deck(cards);
@@ -127,6 +136,8 @@ async fn main() {
                 .or(fouraces)
                 .or(playerblackjack)
                 .or(dealerblackjack)
+                .or(both_blackjack)
+                .or(tie21)
                 .or(playerbust)
                 .or(dealerbust)
                 .or(customdeck)
