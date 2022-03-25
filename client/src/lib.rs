@@ -121,7 +121,7 @@ fn play_game(deck: Deck, player_name: String) -> GameResult {
     println!("Playing as {:?}", player_name);
     println!("{:#?}", deck);
     let original = deck.clone();
-    let mut playing_deck = deck.clone();
+    let mut playing_deck = deck;
     let starting_hand = vec![playing_deck.remove(0), playing_deck.remove(0)];
     let mut player = Player {
         name: player_name,
