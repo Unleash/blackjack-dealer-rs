@@ -14,6 +14,7 @@ Build with cargo, starts up on port 1337 by default.
 - [x] /dealerbust - returns a deck where dealer will bust
 - [x] /playerbust - returns a deck where player will bust
 - [x] /tie21 - Both players draw 21 - - This should cause dealer to lose, since they always draw until they have higher than player -
+- [x] /custom?cards=[cards] - Use this with the shorthand expected from the candidate to put the cards in the get argument on top, so /custom?cards=SA,SK,HA,HK would give player Ace of Spades (SA) and King of Spades (SK), and dealer Ace of Hearts (HA) and King of Hearts (HK)
 
 ### Backing endpoints
 
