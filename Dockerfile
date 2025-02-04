@@ -1,6 +1,6 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1.59 AS builder
+FROM lukemathwalker/cargo-chef:latest-rust-1.84 AS builder
 
-WORKDIR app
+WORKDIR /app
 
 COPY . .
 

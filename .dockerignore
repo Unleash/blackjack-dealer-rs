@@ -3,4 +3,5 @@
 !Cargo.toml
 !logic
 !server
+!client
 !Dockerfile
