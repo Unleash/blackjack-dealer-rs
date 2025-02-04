@@ -2,8 +2,8 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 
 use lazy_static::lazy_static;
+use rand::rng;
 use rand::seq::SliceRandom;
-use rand::thread_rng;
 use serde::{Deserialize, Serialize};
 use strum::IntoEnumIterator;
 
@@ -22,7 +22,7 @@ lazy_static! {
 type Deck = Vec<Card>;
 
 pub fn shuffle() -> Deck {
-    let mut rng = thread_rng();
+    let mut rng = rng();
     let mut deck_copy = DECK.clone();
     deck_copy.shuffle(&mut rng);
     deck_copy
@@ -249,7 +249,7 @@ mod blackjack {
     #[test]
     fn player_blackjack_deals_blackjack_to_player() {
         let b = player_blackjack();
-        let first_player_card = b.get(0).unwrap();
+        let first_player_card = b.first().unwrap();
         let second_player_card = b.get(1).unwrap();
 
         assert_eq!(first_player_card, &Card::from_answer("SA").unwrap());

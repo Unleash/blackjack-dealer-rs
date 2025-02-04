@@ -9,12 +9,12 @@ use logic::{
 use strum::IntoEnumIterator;
 
 fn create_hand_benchmark(c: &mut Criterion) {
-    c.bench_function("dealer_blackjack", |b| b.iter(|| dealer_blackjack()));
-    c.bench_function("dealer_bust", |b| b.iter(|| dealer_bust()));
-    c.bench_function("four_aces", |b| b.iter(|| four_aces()));
-    c.bench_function("player_blackjack", |b| b.iter(|| player_blackjack()));
-    c.bench_function("player_bust", |b| b.iter(|| player_bust()));
-    c.bench_function("shuffle", |b| b.iter(|| shuffle()));
+    c.bench_function("dealer_blackjack", |b| b.iter(dealer_blackjack));
+    c.bench_function("dealer_bust", |b| b.iter(dealer_bust));
+    c.bench_function("four_aces", |b| b.iter(four_aces));
+    c.bench_function("player_blackjack", |b| b.iter(player_blackjack));
+    c.bench_function("player_bust", |b| b.iter(player_bust));
+    c.bench_function("shuffle", |b| b.iter(shuffle));
 }
 
 fn complete_deck_benchmark(c: &mut Criterion) {
