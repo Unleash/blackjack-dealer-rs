@@ -8,13 +8,22 @@ on:
     branches:
       - main
 
+env:
+  RUST_VERSION: 1.89.0
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
         name: Checkout code
+      - name: Install rust
+        run: |
+          rustup set auto-self-update disable
+          rustup toolchain install $RUST_VERSION --profile minimal
+          rustup component add rustfmt --toolchain $RUST_VERSION
+          rustup show
       - name: Lint
         run: cargo clippy -- -D warnings
       - name: Build
