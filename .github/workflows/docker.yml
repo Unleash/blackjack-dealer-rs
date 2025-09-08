@@ -26,7 +26,7 @@ on:
   workflow_dispatch:
 
 env:
-  GHCR_SLUG: ghcr.io/unleash/blackjack-server-rs
+  GHCR_SLUG: ghcr.io/unleash/blackjack-dealer-rs
 
 permissions:
   id-token: write
