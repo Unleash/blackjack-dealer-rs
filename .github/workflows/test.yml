@@ -22,7 +22,7 @@ jobs:
         run: |
           rustup set auto-self-update disable
           rustup toolchain install $RUST_VERSION --profile minimal
-          rustup component add rustfmt --toolchain $RUST_VERSION
+          rustup component add rustfmt clippy --toolchain $RUST_VERSION
           rustup show
       - name: Lint
         run: cargo clippy -- -D warnings
