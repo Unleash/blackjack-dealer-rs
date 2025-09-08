@@ -7,7 +7,7 @@ pub struct Metrics {
 }
 
 impl Metrics {
-    pub fn new(cr: &Registry, include_path_labels: &Vec<String>) -> Self {
+    pub fn new(cr: &Registry, include_path_labels: &[String]) -> Self {
         let internal_http_timer_opts = HistogramOpts::new(
             "server_response_duration_seconds",
             "Route response time in seconds.",
@@ -18,7 +18,7 @@ impl Metrics {
 
         Self {
             http_timer: internal_http_timer,
-            include_path_labels: include_path_labels.clone(),
+            include_path_labels: include_path_labels.to_owned(),
         }
     }
 
@@ -27,7 +27,7 @@ impl Metrics {
         path_segments.iter().fold(String::new(), |acc, &path| {
             if self.include_path_labels.contains(&path.to_string()) {
                 format!("{}/{}", acc, path)
-            } else if path == "" {
+            } else if path.is_empty() {
                 acc.to_string()
             } else {
                 format!("{}/*", acc)
