@@ -1,34 +1,126 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1.84 AS builder
+FROM --platform=linux/amd64 lukemathwalker/cargo-chef:latest-rust-latest AS amd64-chef
+FROM --platform=linux/arm64 lukemathwalker/cargo-chef:latest-rust-latest AS arm64-chef
 
+# Base image for the build stage - this is a multi-stage build that uses cross-compilation (thanks to --platform switch)
+FROM --platform=$BUILDPLATFORM lukemathwalker/cargo-chef:latest-rust-latest AS chef
 WORKDIR /app
 
+# Planner stage
+FROM chef AS planner
 COPY . .
+RUN cargo chef prepare --recipe-path recipe.json
 
-RUN cargo build --release
+# Builder stage
+FROM chef AS builder
+COPY --from=planner /app/recipe.json recipe.json
 
+ARG TARGETPLATFORM
+ARG TARGETARCH
 
-FROM debian:bullseye-slim
+# Copy runtime dependencies for specific target platform/architecture
+# ARM specific folders
+WORKDIR /all-files/linux/arm64/lib/aarch64-linux-gnu
 
-LABEL org.opencontainers.image.description="Blackjack dealer for takehome assignment"
+# AMD64 specific folders
+WORKDIR /all-files/linux/amd64/lib/x86_64-linux-gnu
+WORKDIR /all-files/linux/amd64/lib64
+
+# Common folders
+WORKDIR /all-files/${TARGETPLATFORM}/etc/ssl/certs
+WORKDIR /all-files/${TARGETPLATFORM}/app
+
+# ARM64
+COPY --from=arm64-chef \
+        /lib/aarch64-linux-gnu/libssl.so.3 \
+        /lib/aarch64-linux-gnu/libsasl2.so.2 \
+        /lib/aarch64-linux-gnu/libcrypto.so.3 \
+        /lib/aarch64-linux-gnu/libgcc_s.so.1 \
+        /lib/aarch64-linux-gnu/libm.so.6 \
+        /lib/aarch64-linux-gnu/libc.so.6 \
+        /lib/aarch64-linux-gnu/libz.so.1 \
+        /all-files/linux/arm64/lib/aarch64-linux-gnu/
+
+COPY --from=arm64-chef \
+       /lib/ld-linux-aarch64.so.1 \
+       /all-files/linux/arm64/lib
+
+# AMD64
+COPY --from=amd64-chef \
+        /lib/x86_64-linux-gnu/libssl.so.3 \
+        /lib/x86_64-linux-gnu/libsasl2.so.2 \
+        /lib/x86_64-linux-gnu/libcrypto.so.3 \
+        /lib/x86_64-linux-gnu/libgcc_s.so.1 \
+        /lib/x86_64-linux-gnu/libm.so.6 \
+        /lib/x86_64-linux-gnu/libc.so.6 \
+        /lib/x86_64-linux-gnu/libz.so.1 \
+        /all-files/linux/amd64/lib/x86_64-linux-gnu/
+
+COPY --from=amd64-chef \
+        /lib64/ld-linux-x86-64.so.2 \
+        /all-files/linux/amd64/lib64/
+# Common files - certs
+COPY --from=amd64-chef \
+    /etc/ssl/certs/ca-certificates.crt \
+    /all-files/linux/amd64/etc/ssl/certs/
+COPY --from=arm64-chef \
+    /etc/ssl/certs/ca-certificates.crt \
+    /all-files/linux/arm64/etc/ssl/certs/
 
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y ca-certificates tzdata curl \
+# Install dependencies for cross-compilation and protobuf
+RUN dpkg --add-architecture arm64 \
+    && apt-get update \
+    && apt-get install -y \
+    protobuf-compiler \
+    g++-aarch64-linux-gnu \
+    libsasl2-dev \
+    cmake \
+    libc6-dev-arm64-cross \
+    libssl-dev:arm64 \
+    libzip-dev:arm64 \
+    ca-certificates \
+    && rustup target add aarch64-unknown-linux-gnu \
+    && rustup toolchain install stable-aarch64-unknown-linux-gnu --force-non-host \
     && rm -rf /var/lib/apt/lists/*
 
-EXPOSE 1337
+# Build dependencies - this is the caching Docker layer!
+RUN case ${TARGETARCH} in \
+    arm64) PKG_CONFIG_SYSROOT_DIR=/ CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc cargo chef cook --target=aarch64-unknown-linux-gnu --release --recipe-path recipe.json ;; \
+    amd64) cargo chef cook --release --recipe-path recipe.json ;; \
+    *) exit 1 ;; \
+    esac
 
-ENV TZ=Etc/UTC \
-    APP_USER=blackjack
+# Copy the source code
+COPY . /app
 
-RUN groupadd $APP_USER \
-    && useradd -g $APP_USER $APP_USER
+# Build application - this is the caching Docker layer!
+RUN case ${TARGETARCH} in \
+    arm64) PKG_CONFIG_SYSROOT_DIR=/ CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=aarch64-linux-gnu-gcc cargo build --target=aarch64-unknown-linux-gnu --release ;; \
+    amd64) cargo build --release ;; \
+    *) exit 1 ;; \
+    esac
 
-COPY --from=builder /app/target/release/server /app
+# Copy all the dependencies to a separate folder
+RUN set -ex; \
+    # Determine target (source folder for the binary and env files)
+    case ${TARGETARCH} in \
+    arm64) target='/app/target/aarch64-unknown-linux-gnu/release';; \
+    amd64) target='/app/target/release';; \
+    *) exit 1 ;; \
+    esac; \
+    # Copy files from the target folder to app folder
+    cp $target/server     /all-files/${TARGETPLATFORM}/app
 
-RUN chown -R $APP_USER:$APP_USER /app/server
+# # Create a single layer image
+FROM scratch AS runtime
 
-USER $APP_USER
+# Make build arguments available in the runtime stage
+ARG TARGETPLATFORM
+ARG TARGETARCH
+
+WORKDIR /app
+
+COPY --from=builder /all-files/${TARGETPLATFORM} /
 
 CMD ["./server"]
