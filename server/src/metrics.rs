@@ -62,7 +62,7 @@ impl Metrics {
         let path = self.sanitize_path_segments(info.path());
         let method = info.method().to_string();
         self.http_timer
-            .with_label_values(&[method, path, info.status().to_string()])
+            .with_label_values(&[method, path, info.status().as_u16().to_string()])
             .observe(info.elapsed().as_secs_f64());
 
     }
