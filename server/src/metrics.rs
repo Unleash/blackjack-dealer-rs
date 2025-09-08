@@ -13,7 +13,7 @@ impl Metrics {
             "Route response time in seconds.",
         );
         let internal_http_timer =
-            HistogramVec::new(internal_http_timer_opts, &["classifier", "status"]).unwrap();
+            HistogramVec::new(internal_http_timer_opts, &["method", "path", "status"]).unwrap();
         cr.register(Box::new(internal_http_timer.clone())).unwrap();
 
         Self {
@@ -59,13 +59,10 @@ impl Metrics {
     ///
     /// ```
     pub fn http_metrics(&self, info: warp::log::Info) {
-        let sanitized_classifier = format!(
-            "{} - {}",
-            info.method(),
-            self.sanitize_path_segments(info.path())
-        );
+        let path = self.sanitize_path_segments(info.path());
+        let method = info.method().to_string();
         self.http_timer
-            .with_label_values(&[sanitized_classifier, info.status().to_string()])
+            .with_label_values(&[method, path, info.status().to_string()])
             .observe(info.elapsed().as_secs_f64());
 
     }

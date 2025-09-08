@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: blackjack-dealer
-          image: "ghcr.io/unleash/blackjack-dealer-rs:sha-1acd047"
+          image: "ghcr.io/unleash/blackjack-server-rs:edge"
           imagePullPolicy: Always
           env:
             - name: PORT
@@ -55,5 +55,3 @@ spec:
             requests:
               cpu: 10m
               memory: 50M
-
-
