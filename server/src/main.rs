@@ -12,7 +12,7 @@ use std::convert::Infallible;
 use std::env;
 use warp::http::{Response, StatusCode};
 use warp::{Filter, Rejection, Reply};
-use warp_prometheus::Metrics;
+use server::metrics::Metrics;
 
 lazy_static! {
     static ref REGISTRY: Registry = Registry::new();
@@ -38,6 +38,7 @@ async fn main() {
         "custom".into(),
         "playerbust".into(),
         "dealerbust".into(),
+        "tie21".into(),
     ];
     let metrics = Metrics::new(&REGISTRY, &path_includes);
     let logger = warp::log("unleash-blackjack");
